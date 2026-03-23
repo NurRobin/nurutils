@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# portfind - show which process is listening on a port
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: portfind <port>" >&2
+  exit 2
+fi
+
+port="$1"
+
+if [[ ! "$port" =~ ^[0-9]+$ ]]; then
+  echo "portfind: '$port' is not a valid port number" >&2
+  exit 2
+fi
+
+if command -v ss &>/dev/null; then
+  ss -tlnp "sport = :${port}" 2>/dev/null
+elif command -v lsof &>/dev/null; then
+  lsof -iTCP:"$port" -sTCP:LISTEN 2>/dev/null
+else
+  echo "portfind: needs ss or lsof" >&2
+  exit 1
+fi

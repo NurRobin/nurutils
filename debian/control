@@ -1,0 +1,12 @@
+Package: nurutils
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: bash (>= 4.0)
+Recommends: curl
+Maintainer: Robin <robin@nurrobin.de>
+Homepage: https://github.com/NurRobin/nurutils
+Description: Small collection of everyday shell utilities
+ ee (empty+edit), bak (timestamped backup), cpe (copy+edit),
+ portfind (who listens on a port), weather, pubip, mkcd.

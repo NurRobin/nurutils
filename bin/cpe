@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# cpe - copy a file then edit the copy
+set -euo pipefail
+
+if [[ $# -ne 2 ]]; then
+  echo "Usage: cpe <source> <dest>" >&2
+  exit 2
+fi
+
+src="$1"
+dest="$2"
+
+if [[ ! -f "$src" ]]; then
+  echo "cpe: '$src' does not exist" >&2
+  exit 1
+fi
+
+cp "$src" "$dest"
+exec "${EDITOR:-vi}" "$dest"

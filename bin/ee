@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# ee - empty a file and open it in your editor
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: ee <file> [file ...]" >&2
+  exit 2
+fi
+
+for f in "$@"; do
+  if [[ ! -e "$f" ]]; then
+    echo "ee: '$f' does not exist" >&2
+    exit 1
+  fi
+  > "$f"
+done
+
+exec "${EDITOR:-vi}" "$@"

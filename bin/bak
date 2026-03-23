@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# bak - create a timestamped backup copy of a file
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: bak <file> [file ...]" >&2
+  exit 2
+fi
+
+ts=$(date +%Y-%m-%dT%H%M%S)
+
+for f in "$@"; do
+  if [[ ! -e "$f" ]]; then
+    echo "bak: '$f' does not exist" >&2
+    exit 1
+  fi
+  dest="${f}.${ts}"
+  cp -a "$f" "$dest"
+  echo "$dest"
+done

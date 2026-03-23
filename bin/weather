@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# weather - quick weather from wttr.in
+set -euo pipefail
+
+loc="${1:-}"
+exec curl -sf "wttr.in/${loc}"
