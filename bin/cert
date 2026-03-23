@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# cert - show SSL certificate info for a domain
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: cert <domain> [port]" >&2
+  exit 2
+fi
+
+domain="$1"
+port="${2:-443}"
+
+# Strip protocol prefix if given
+domain="${domain#https://}"
+domain="${domain#http://}"
+domain="${domain%%/*}"
+
+cert_data=$(echo | openssl s_client -servername "$domain" -connect "${domain}:${port}" 2>/dev/null)
+
+if [[ -z "$cert_data" ]]; then
+  echo "cert: could not connect to ${domain}:${port}" >&2
+  exit 1
+fi
+
+echo "$cert_data" | openssl x509 -noout \
+  -subject -issuer -dates -ext subjectAltName 2>/dev/null \
+  | sed 's/^/  /'

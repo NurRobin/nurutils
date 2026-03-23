@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# watchlog - run a command and tail its log file
+set -euo pipefail
+
+if [[ $# -lt 2 ]]; then
+  echo "Usage: watchlog <logfile> <command...>" >&2
+  echo "  Runs the command in background, tails the logfile," >&2
+  echo "  and stops when the command exits." >&2
+  exit 2
+fi
+
+logfile="$1"
+shift
+
+# Create logfile if it doesn't exist
+touch "$logfile"
+
+# Start the command in background
+"$@" &
+cmd_pid=$!
+
+cleanup() {
+  kill "$cmd_pid" 2>/dev/null || true
+  kill "$tail_pid" 2>/dev/null || true
+  wait "$cmd_pid" 2>/dev/null
+  exit_code=$?
+  echo "" >&2
+  echo "watchlog: command exited with $exit_code" >&2
+  exit "$exit_code"
+}
+trap cleanup INT TERM
+
+# Tail the logfile
+tail -f "$logfile" &
+tail_pid=$!
+
+# Wait for the command to finish
+wait "$cmd_pid" 2>/dev/null
+exit_code=$?
+
+# Give tail a moment to flush remaining output
+sleep 0.2
+kill "$tail_pid" 2>/dev/null || true
+
+echo "" >&2
+echo "watchlog: command exited with $exit_code" >&2
+exit "$exit_code"

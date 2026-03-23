@@ -8,5 +8,5 @@ Recommends: curl
 Maintainer: Robin <robin@nurrobin.de>
 Homepage: https://github.com/NurRobin/nurutils
 Description: Small collection of everyday shell utilities
- ee (empty+edit), bak (timestamped backup), cpe (copy+edit),
- portfind (who listens on a port), weather, pubip, mkcd.
+ ee, bak, cpe, extract, epoch, biggest, cert, retry, json,
+ watchlog, portfind, weather, pubip, mkcd.

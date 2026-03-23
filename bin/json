@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# json - pretty-print JSON with color
+set -euo pipefail
+
+color_flag=""
+if [[ -n "${NO_COLOR:-}" ]] || [[ ! -t 1 ]]; then
+  color_flag="--monochrome-output"
+fi
+
+if command -v jq &>/dev/null; then
+  if [[ $# -eq 0 ]] || [[ "$1" == "-" ]]; then
+    jq $color_flag '.'
+  else
+    jq $color_flag '.' "$@"
+  fi
+else
+  # fallback: python3
+  if [[ $# -eq 0 ]] || [[ "$1" == "-" ]]; then
+    python3 -m json.tool
+  else
+    python3 -m json.tool "$@"
+  fi
+fi

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# epoch - convert between unix timestamps and human dates
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+  date +%s
+  exit 0
+fi
+
+for arg in "$@"; do
+  if [[ "$arg" =~ ^[0-9]+$ ]]; then
+    # timestamp to date
+    if (( arg > 9999999999 )); then
+      # milliseconds
+      secs=$(( arg / 1000 ))
+      ms=$(( arg % 1000 ))
+      echo "$(date -d "@$secs" '+%Y-%m-%d %H:%M:%S').${ms}"
+    else
+      date -d "@$arg" '+%Y-%m-%d %H:%M:%S %Z'
+    fi
+  else
+    # date string to timestamp
+    date -d "$arg" +%s
+  fi
+done

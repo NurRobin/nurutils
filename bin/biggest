@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# biggest - show the N largest files in a directory tree
+set -euo pipefail
+
+n="${1:-10}"
+dir="${2:-.}"
+
+if [[ ! "$n" =~ ^[0-9]+$ ]]; then
+  echo "Usage: biggest [count] [directory]" >&2
+  exit 2
+fi
+
+if [[ ! -d "$dir" ]]; then
+  echo "biggest: '$dir' is not a directory" >&2
+  exit 1
+fi
+
+find "$dir" -type f -printf '%s\t%p\n' 2>/dev/null \
+  | sort -rn \
+  | head -n "$n" \
+  | awk -F'\t' '{
+      size = $1
+      path = $2
+      if (size >= 1073741824) printf "%7.1f GB  %s\n", size/1073741824, path
+      else if (size >= 1048576) printf "%7.1f MB  %s\n", size/1048576, path
+      else if (size >= 1024) printf "%7.1f KB  %s\n", size/1024, path
+      else printf "%7d B   %s\n", size, path
+    }'

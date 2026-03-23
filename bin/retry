@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# retry - run a command up to N times until it succeeds
+set -euo pipefail
+
+usage() {
+  echo "Usage: retry [-n attempts] [-d delay] <command...>" >&2
+  echo "  -n  max attempts (default: 3)" >&2
+  echo "  -d  delay between attempts in seconds (default: 1)" >&2
+  exit 2
+}
+
+max=3
+delay=1
+
+while getopts ":n:d:" opt; do
+  case "$opt" in
+    n) max="$OPTARG" ;;
+    d) delay="$OPTARG" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+[[ $# -eq 0 ]] && usage
+
+for (( i=1; i<=max; i++ )); do
+  if "$@"; then
+    exit 0
+  fi
+  if (( i < max )); then
+    echo "retry: attempt $i/$max failed, retrying in ${delay}s..." >&2
+    sleep "$delay"
+  fi
+done
+
+echo "retry: all $max attempts failed" >&2
+exit 1
