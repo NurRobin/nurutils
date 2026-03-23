@@ -1,18 +1,29 @@
 #!/usr/bin/env bash
 # ee - empty a file and open it in your editor
+# If you close without writing anything, the original content is restored.
 set -euo pipefail
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: ee <file> [file ...]" >&2
+  echo "Usage: ee <file>" >&2
   exit 2
 fi
 
-for f in "$@"; do
-  if [[ ! -e "$f" ]]; then
-    echo "ee: '$f' does not exist" >&2
-    exit 1
-  fi
-  > "$f"
-done
+f="$1"
 
-exec "${EDITOR:-vi}" "$@"
+if [[ ! -e "$f" ]]; then
+  echo "ee: '$f' does not exist" >&2
+  exit 1
+fi
+
+backup=$(mktemp)
+trap 'rm -f "$backup"' EXIT
+
+cp -a "$f" "$backup"
+> "$f"
+
+"${EDITOR:-vi}" "$f"
+
+if [[ ! -s "$f" ]]; then
+  cp -a "$backup" "$f"
+  echo "ee: no changes, original restored" >&2
+fi
